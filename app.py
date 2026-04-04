@@ -58,7 +58,7 @@ OTPEXPIRYSECONDS =int(os.getenv("OTP_EXPIRY_SECONDS"))
 
 
 # Construct the SQLAlchemy connection string
-DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?sslmode=require"
+DATABASE_URL = os.getenv("DATABASE_UR")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER')
