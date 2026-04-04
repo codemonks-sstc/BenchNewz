@@ -278,11 +278,11 @@ def send_otp_email(recipient_email, otp, name=None):
 
 def time_ago(dt):
     IST = timezone(timedelta(hours=5, minutes=30))
-    now = datetime.now(IST)
+    now = datetime.now(timezone.utc)
     
-    # dt is stored as IST, just make it timezone aware
+    # make dt timezone aware as UTC if it isn't
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=IST)
+        dt = dt.replace(tzinfo=timezone.utc)
     
     diff = now - dt
     seconds = diff.total_seconds()
@@ -298,9 +298,9 @@ def time_ago(dt):
         h = int(hours)
         return f"{h} hour{'s' if h > 1 else ''} ago"
     elif hours < 48:
-        return f"Yesterday, {dt.strftime('%I:%M %p')}"
+        return f"Yesterday, {dt.astimezone(IST).strftime('%I:%M %p')}"
     else:
-        return dt.strftime('%d %B, %Y %I:%M %p').lstrip('0')
+        return dt.astimezone(IST).strftime('%-d %B, %Y %I:%M %p')
 
 app.jinja_env.filters['time_ago'] = time_ago
 
@@ -326,12 +326,20 @@ def validate_password(password):
 # -------------------- Routes --------------------
 @app.route('/')
 def index():
+    if 'otp' in session:
+        session.pop('otp', None)
+        session.pop('otp_time', None)
+        session.pop('pending_user', None)
     if 'username' in session:
         return redirect(url_for('feed'))
     return render_template('login.html')
 
 @app.route('/login', methods=['POST'])
 def login():
+    if 'otp' in session:
+        session.pop('otp', None)
+        session.pop('otp_time', None)
+        session.pop('pending_user', None)
     try:
         username = request.form['username'].strip()
         user = User.query.filter(func.lower(User.username) == username.lower()).first()
@@ -348,7 +356,7 @@ def login():
         session['user_id'] = user.id
         session['role'] = user.role
         return redirect(url_for('feed'))
-    return 'Invalid credentials'
+    return render_template('login.html', error = 'Invalid credentials')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -367,7 +375,7 @@ def signup():
                 session.pop('otp', None)
                 session.pop('otp_time', None)
                 session.pop('pending_user', None)
-                return render_template('signup.html', error='OTP expired. Please signup again.')
+                return render_template('signup.html', verify=False, error='OTP expired. Please signup again.')
 
             if entered_otp == stored_otp:
                 session.pop('otp', None)
@@ -382,7 +390,7 @@ def signup():
                 session.pop('otp', None)
                 session.pop('otp_time', None)
                 session.pop('pending_user', None)
-                return render_template('signup.html', error='Invalid OTP. Please try again.')
+                return render_template('signup.html', verify=False, error='Invalid OTP. Please try again.')
 
     else:
         if request.method == 'POST':
@@ -438,17 +446,26 @@ def signup():
 
                 try:
                     send_otp_email(user.email, otp, name=name)
-                except Exception as e:
-                    print(f"OTP ERROR: {e}")
+                except Exception:
+                    session.clear()
                     return render_template('signup.html', error='Unable to send OTP. Please contact Admin.')
 
                 return render_template('signup.html', verify=True)
 
             else:
+                db.session.add(user)
                 db.session.commit()
                 return redirect(url_for('index'))
 
         return render_template('signup.html')
+
+@app.route('/signup/o')
+def o():
+    session.pop('otp', None)
+    session.pop('otp_time', None)
+    session.pop('pending_user', None)
+    return redirect(url_for('signup'))
+    
 
 OTP_EXPIRY = 300
 

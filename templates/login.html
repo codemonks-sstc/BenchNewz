@@ -636,6 +636,12 @@
         <p><a href="/fp" class="fp">Forgot Password?</a></p><br>
         <p>Don't have an account? <a class="signup" href="/signup">Sign up</a></p>
 
+        {% if error %}
+        <div class="error-box">
+            {{ error }}
+        </div>
+        {% endif %}
+
     </div>
 
     <script>

@@ -647,9 +647,63 @@ body.dark-mode .post .mark p {
     font-size: 15px;
     margin-top: 1.5rem;
     padding-top: 1rem;
-    border-top: 1px solid #eee;
+    /* border-top: 1px solid #eee; */
     /* color: #999; */
     /* font-size: 13px; */
+}
+
+/* ===== guide ========== */
+
+.post-guide {
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 720px;
+    margin: 1rem auto;
+    padding: 1rem 1.2rem;
+    border-radius: 10px;
+    background: #fff8f3;
+    border-left: 4px solid #F98025;
+
+}
+
+body.dark-mode .post-guide {
+    background: #1e1e1e;
+}
+
+.post-guide p {
+    margin: 0 0 0.5rem 0;
+}
+
+.post-guide p strong u {
+    font-size: 17px;
+    color: #1a1a1a;
+}
+
+body.dark-mode .post-guide p strong u {
+    color: #e4e4e4;
+}
+
+.post-guide ul {
+    margin: 0.5rem 0;
+    padding-left: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.post-guide li {
+    margin: 0.3rem 0;
+}
+
+.post-guide code {
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+body.dark-mode .post-guide code {
+    background: #333;
 }
 
 
