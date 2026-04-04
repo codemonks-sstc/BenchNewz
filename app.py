@@ -1,5 +1,5 @@
 import eventlet
-eventlet.monkey_patch()
+eventlet.monkey_patch(socket=True, select=True, thread=True)
 
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from flask_socketio import SocketIO, send
@@ -60,7 +60,7 @@ OTPEXPIRYSECONDS =int(os.getenv("OTP_EXPIRY_SECONDS"))
 # Construct the SQLAlchemy connection string
 DATABASE_URL = os.getenv("DATABASE_UR")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or "sqlite:///test.db"
 app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER')
 db = SQLAlchemy(app)
 socketio = SocketIO(app, async_mode='threading',  cors_allowed_origins="*")
