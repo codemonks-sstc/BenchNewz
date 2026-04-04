@@ -922,8 +922,17 @@ def adminPanel():
     if 'username' not in session or session.get('role') != 'admin':
         return redirect(url_for('index'))
 
-    pending_posts = Post.query.filter(Post.status.in_(["pending", "reported"])).order_by(Post.created_at.desc()).all()
-    return render_template('adminPanel.html', posts=pending_posts, username=session['username'], role=session['role'])
+    posts = Post.query.filter(Post.status.in_(["pending", "reported"])).order_by(Post.created_at.desc()).all()
+
+    posts_data = []
+    for post in posts:
+        posts_data.append({
+            'post': post,
+            'pcontent': markdown.markdown(post.content),
+            'ptitle': markdown.markdown(post.title)
+        })
+
+    return render_template('adminPanel.html', posts=posts_data, username=session['username'], role=session['role'])
 
 @app.route('/adminPanel/approve/<int:id>', methods=['POST'])
 def approve_post(id):
