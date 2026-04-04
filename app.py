@@ -12,10 +12,8 @@ from datetime import datetime
 from disposable_email_domains import blocklist
 import re
 import random, smtplib,time
-from email.mime.text import MIMEText
 from mparser import parse_media
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import requests
 
 ALLOWED_DOMAINS = {
     "gmail.com",
@@ -55,10 +53,8 @@ HOST = os.getenv("DB_HOST")
 PORT = os.getenv("DB_PORT")
 DBNAME = os.getenv("DB_NAME")
 
-SMTPHOST = os.getenv("SMTP_HOST")
-SMTPPORT = os.getenv("SMTP_PORT")
-SMTPUSER = os.getenv("SMTP_USER")     
-SMTPPASS = os.getenv("SMTP_PASS")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+
 OTPEXPIRYSECONDS =int(os.getenv("OTP_EXPIRY_SECONDS"))
 
 
@@ -185,8 +181,6 @@ class Follow(db.Model):
 
 #---------------send OTP------------------------------------------------------
 def send_otp_email(recipient_email, otp, name=None):
-    
-    msg = MIMEMultipart("alternative")
 
     html = f"""
         <!DOCTYPE html>
@@ -253,22 +247,29 @@ def send_otp_email(recipient_email, otp, name=None):
         </html>
     """
 
-    msg.attach(MIMEText(html, "html"))
+    payload = {
+        "sender": {
+            "name": "BenchNewz",
+            "email": "benchnewz@gmail.com" 
+        },
+        "to": [
+            {"email": recipient_email, "name": name or "User"}
+        ],
+        "subject": "Your Login OTP - BenchNewz",
+        "htmlContent": html
+    }
 
+    response = requests.post(
+        "https://api.brevo.com/v3/smtp/email",
+        headers={
+            "api-key": os.getenv("BREVO_API_KEY"),
+            "Content-Type": "application/json"
+        },
+        json=payload
+    )
 
-    # if name:
-    #     msg = MIMEText(f'Hello {name},\n\nYour login OTP for BenchNewz is: {otp}\n\nIt is valid for {OTPEXPIRYSECONDS // 60} minutes.')
-    # else:
-    #     msg = MIMEText(f'Your login OTP for BenchNewz is: {otp}\n\nIt is valid for {OTPEXPIRYSECONDS // 60} minutes.')
-    msg['Subject'] = 'Your Login OTP'
-    msg['From'] = SMTPUSER
-    msg['To'] = recipient_email
- 
-    with smtplib.SMTP(SMTPHOST, SMTPPORT) as server:
-        server.ehlo()
-        server.starttls()
-        server.login(SMTPUSER, SMTPPASS)
-        server.sendmail(SMTPUSER, recipient_email, msg.as_string())
+    if response.status_code not in (200, 201):
+        raise Exception(f"Brevo error {response.status_code}: {response.text}")
 
 #---------------------------------------------------------------------------
 
