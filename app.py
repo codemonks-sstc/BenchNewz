@@ -14,6 +14,8 @@ import re
 import random, smtplib,time
 from email.mime.text import MIMEText
 from mparser import parse_media
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 ALLOWED_DOMAINS = {
     "gmail.com",
@@ -39,6 +41,9 @@ ALLOWED_DOMAINS = {
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'default-secret')
+app.config['SESSION_COOKIE_SECURE'] = True      # HTTPS only
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'   # Required for cross-origin
+app.config['SESSION_COOKIE_HTTPONLY'] = True
 
 # Load environment variables from .env
 load_dotenv()
@@ -58,9 +63,9 @@ OTPEXPIRYSECONDS =int(os.getenv("OTP_EXPIRY_SECONDS"))
 
 
 # Construct the SQLAlchemy connection string
-DATABASE_URL = os.getenv("DATABASE_UR")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') or "sqlite:///test.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL') 
 app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER')
 db = SQLAlchemy(app)
 socketio = SocketIO(app, async_mode='threading',  cors_allowed_origins="*")
@@ -176,10 +181,80 @@ class Follow(db.Model):
 #---------------send OTP------------------------------------------------------
 def send_otp_email(recipient_email, otp, name=None):
     
-    if name:
-        msg = MIMEText(f'Hello {name},\n\nYour login OTP for BenchNewz is: {otp}\n\nIt is valid for {OTPEXPIRYSECONDS // 60} minutes.')
-    else:
-        msg = MIMEText(f'Your login OTP for BenchNewz is: {otp}\n\nIt is valid for {OTPEXPIRYSECONDS // 60} minutes.')
+    msg = MIMEMultipart("alternative")
+
+    html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        </head>
+        <body style="margin:0; padding:0; font-family: Arial, sans-serif; background-color:#f4f4f4;">
+
+        <table align="center" width="100%" style="max-width:600px; margin:auto; background:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+
+            <!-- Header -->
+            <tr>
+            <td style="background:#F98025; padding:20px; text-align:center; color:white;">
+                <h2 style="margin:0; font-weight:bold;">
+                    Bench<span style="font-weight:lighter;">Newz</span>
+                </h2>
+                <p style="margin:5px 0 0;">Secure Email Verification</p>
+            </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+            <td style="padding:30px; text-align:center; color:#333;">
+                <h3 style="margin-bottom:10px;">Your OTP Code</h3>
+                <p style="font-size:14px; color:#777;">
+                Use the following One-Time Password (OTP) to verify your email address.
+                </p>
+
+                <!-- OTP Box -->
+                <div style="margin:25px 0;">
+                <span style="
+                    display:inline-block;
+                    font-size:28px;
+                    letter-spacing:6px;
+                    font-weight:bold;
+                    background:#f0f4ff;
+                    padding:15px 25px;
+                    border-radius:8px;
+                    color:#F98025;
+                ">
+                    { otp }
+                </span>
+                </div>
+
+                <p style="font-size:13px; color:#999;">
+                This OTP is valid for 5 minutes. Do not share it with anyone.
+                </p>
+            </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+            <td style="background:#f9f9f9; padding:15px; text-align:center; font-size:12px; color:#aaa;">
+                If you didn’t request this, you can safely ignore this email.
+                <br><br>
+                BenchNewz - Made with ❤️ by Code Monks!
+            </td>
+            </tr>
+
+        </table>
+
+        </body>
+        </html>
+    """
+
+    msg.attach(MIMEText(html, "html"))
+
+
+    # if name:
+    #     msg = MIMEText(f'Hello {name},\n\nYour login OTP for BenchNewz is: {otp}\n\nIt is valid for {OTPEXPIRYSECONDS // 60} minutes.')
+    # else:
+    #     msg = MIMEText(f'Your login OTP for BenchNewz is: {otp}\n\nIt is valid for {OTPEXPIRYSECONDS // 60} minutes.')
     msg['Subject'] = 'Your Login OTP'
     msg['From'] = SMTPUSER
     msg['To'] = recipient_email
@@ -313,8 +388,6 @@ def signup():
                 role=role
             )
 
-            db.session.add(user)
-
             if role == "reporter":
                 otp = str(random.randint(100000, 999999))
                 session['otp'] = otp
@@ -401,7 +474,7 @@ def fp():
 
         return redirect(url_for('index'))
 
-    return redirect(url_for('index'))
+    return redirect(url_for('fp'))
 
 
 @app.route('/cr', methods=['GET', 'POST'])
@@ -457,9 +530,9 @@ def cr():
         db.session.commit()
         session.clear()
 
-        return redirect(url_for('index'))
+        return redirect(url_for('myprofile'))
 
-    return redirect(url_for('index'))
+    return redirect(url_for('cr'))
 
 @app.route('/deleteAcc', methods=['GET'])
 def delete_account_page():
