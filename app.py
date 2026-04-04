@@ -1,5 +1,5 @@
-import eventlet
-eventlet.monkey_patch(socket=True, select=True, thread=True)
+# import eventlet
+# eventlet.monkey_patch(socket=True, select=True, thread=True)
 
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from flask_socketio import SocketIO, send
@@ -407,7 +407,7 @@ def signup():
 
                 try:
                     send_otp_email(user.email, otp, name=name)
-                except Exception:
+                except Exception as e:
                     print(f"OTP ERROR: {e}")
                     return render_template('signup.html', error='Unable to send OTP. Please contact Admin.')
 
@@ -444,8 +444,8 @@ def fp():
 
         try:
             send_otp_email(email, otp, name=user.name)
-        except Exception:
-            print(f"OTP ERROR: {Exception}")
+        except Exception as e:
+            print(f"OTP ERROR: {e}")
             return render_template('fp.html', verify=0, error="Failed to send OTP")
 
         return render_template('fp.html', verify=1)
@@ -507,8 +507,8 @@ def cr():
 
         try:
             send_otp_email(email, otp, name=user.name)
-        except Exception:
-            print(f"OTP ERROR: {Exception}")
+        except Exception as e:
+            print(f"OTP ERROR: {e}")
             return render_template('cr.html', verify=0, error="Failed to send OTP")
 
         return render_template('cr.html', verify=1)
