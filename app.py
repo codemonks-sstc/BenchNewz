@@ -280,7 +280,7 @@ def time_ago(dt):
     IST = timezone(timedelta(hours=5, minutes=30))
     now = datetime.now(IST)
     
-    # make dt timezone aware if it isn't
+    # dt is stored as IST, just make it timezone aware
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=IST)
     
@@ -300,7 +300,7 @@ def time_ago(dt):
     elif hours < 48:
         return f"Yesterday, {dt.strftime('%I:%M %p')}"
     else:
-        return dt.strftime('%-d %B, %Y %I:%M %p')
+        return dt.strftime('%d %B, %Y %I:%M %p').lstrip('0')
 
 app.jinja_env.filters['time_ago'] = time_ago
 

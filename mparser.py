@@ -1,3 +1,5 @@
+import re
+
 def parse_media(url, media_type):
     if not url or not media_type:
         return None
@@ -6,7 +8,6 @@ def parse_media(url, media_type):
 
     # 🔴 YouTube
     if media_type == "youtube":
-        import re
         match = re.search(r"(?:v=|youtu\.be/)([^&?/]+)", url)
         if match:
             video_id = match.group(1)
@@ -37,7 +38,6 @@ def parse_media(url, media_type):
     # 🔵 Video
     elif media_type == "video":
         if "drive.google.com" in url:
-            import re
             file_id = re.search(r"/d/([\w-]+)", url).group(1)
             url = f"https://drive.google.com/file/d/{file_id}/preview"
 
