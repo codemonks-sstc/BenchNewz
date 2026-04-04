@@ -70,6 +70,11 @@ app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER')
 db = SQLAlchemy(app)
 socketio = SocketIO(app, async_mode='threading',  cors_allowed_origins="*")
 
+
+print(f"SMTP DEBUG: host={SMTPHOST} port={SMTPPORT} user={SMTPUSER} pass_set={'yes' if SMTPPASS else 'NO'}")
+
+
+
 # -------------------- Models --------------------
 class User(db.Model):
     __tablename__ = "users"
@@ -403,6 +408,7 @@ def signup():
                 try:
                     send_otp_email(user.email, otp, name=name)
                 except Exception:
+                    print(f"OTP ERROR: {e}")
                     return render_template('signup.html', error='Unable to send OTP. Please contact Admin.')
 
                 return render_template('signup.html', verify=True)
@@ -439,6 +445,7 @@ def fp():
         try:
             send_otp_email(email, otp, name=user.name)
         except Exception:
+            print(f"OTP ERROR: {Exception}")
             return render_template('fp.html', verify=0, error="Failed to send OTP")
 
         return render_template('fp.html', verify=1)
@@ -501,6 +508,7 @@ def cr():
         try:
             send_otp_email(email, otp, name=user.name)
         except Exception:
+            print(f"OTP ERROR: {Exception}")
             return render_template('cr.html', verify=0, error="Failed to send OTP")
 
         return render_template('cr.html', verify=1)
