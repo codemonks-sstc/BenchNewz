@@ -48,7 +48,7 @@
                         {% for item in posts %}
                         <li style="list-style: none;" class="post">
                             <h2 class="title">{{ item.ptitle | safe }}</h2>
-                            <h3 class="head"><span class="timestamp">{{ item.post.created_at.strftime('%d-%m-%Y %H:%M:%S') if
+                            <h3 class="head"><span class="timestamp">{{ item.post.created_at | time_ago  if
                                     item.post.created_at else '' }}</span></h3>
                             <hr>
                             {% if item.post.media_html %}
@@ -61,19 +61,19 @@
                             <div class="reactionBox" data-post-id="{{ item.post.id }}">
                                 <div class="reactions">
                                     <span class="material-symbols-outlined like 
-                                            {% if item.post.is_liked %}liked{% endif %}">
-                                        {% if item.post.is_liked %}
+                                            {% if item.is_liked %}liked{% endif %}">
+                                        {% if item.is_liked %}
                                         favorite
                                         {% else %}
                                         heart_plus
                                         {% endif %}
                                     </span>
                                     <span class="like-count">
-                                        {% if item.post.like_count %}
-                                        {% if item.post.like_count == 1 %}
-                                        {{ item.post.like_count }} Like
+                                        {% if item.like_count %}
+                                        {% if item.like_count == 1 %}
+                                        {{ item.like_count }} Like
                                         {% else %}
-                                        {{ item.post.like_count }} Likes
+                                        {{ item.like_count }} Likes
                                         {% endif %}
                                         {% endif %}
                                     </span>

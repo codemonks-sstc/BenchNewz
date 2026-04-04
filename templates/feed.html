@@ -28,7 +28,7 @@
                 <!-- <hr> -->
                 <h3 class="head"><a class="use" href="/profile/{{ item.post.author.username }}">{{
                         item.post.author.username }}</a><b> - </b><span class="timestamp">{{
-                        item.post.created_at.strftime('%d-%m-%Y %H:%M:%S') if item.post.created_at else '' }}</span>
+                        item.post.created_at | time_ago  if item.post.created_at else '' }}</span>
                 </h3>
                 <hr>
                 {% if item.post.media_html %}

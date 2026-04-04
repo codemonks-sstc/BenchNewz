@@ -37,7 +37,7 @@
                     <h2 class="title">{{ item.ptitle | safe }}</h2>
 
                     <h3 class="head"><a class="use" href="/user/{{ item.post.author.id }}">{{ item.post.author.username }}</a><b>
-                            - </b><span class="timestamp">{{ item.post.created_at.strftime('%d-%m-%Y %H:%M:%S') if
+                            - </b><span class="timestamp">{{ item.post.created_at | time_ago  if
                             item.post.created_at else '' }}</span></h3>
 
                     {% if item.post.media_html %}

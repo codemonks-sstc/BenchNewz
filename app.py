@@ -14,6 +14,9 @@ import re
 import random, smtplib,time
 from mparser import parse_media
 import requests
+from datetime import timezone, timedelta
+
+IST = timezone(timedelta(hours=5, minutes=30))
 
 ALLOWED_DOMAINS = {
     "gmail.com",
@@ -82,7 +85,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(200), nullable=False)
     
     role = db.Column(db.String(20), default="user")
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(IST))
 
     # Relationships
     posts = db.relationship("Post", backref="author", foreign_keys="Post.author_id", lazy=True)
@@ -118,7 +121,7 @@ class Post(db.Model):
     reviewed_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
 
     status = db.Column(db.String(20), default="pending")
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(IST))
 
     # Relationships
     reactions = db.relationship("PostReaction", backref="post", lazy=True)
@@ -134,7 +137,7 @@ class PostReaction(db.Model):
 
     reaction_type = db.Column(db.String(10), nullable=False)
 
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(IST))
 
     __table_args__ = (
         db.UniqueConstraint('post_id', 'user_id', name='unique_user_post_reaction'),
@@ -146,7 +149,7 @@ class Report(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey("posts.id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(IST))
 
     __table_args__ = (
         db.UniqueConstraint('post_id', 'user_id', name='unique_report'),
@@ -162,7 +165,7 @@ class Comment(db.Model):
 
     content = db.Column(db.Text, nullable=False)
 
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(IST))
 
 class Follow(db.Model):
     __tablename__ = "follows"
@@ -172,7 +175,7 @@ class Follow(db.Model):
     follower_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     following_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(IST))
 
     __table_args__ = (
         db.UniqueConstraint('follower_id', 'following_id', name='unique_follow'),
@@ -273,6 +276,33 @@ def send_otp_email(recipient_email, otp, name=None):
 
 #---------------------------------------------------------------------------
 
+def time_ago(dt):
+    IST = timezone(timedelta(hours=5, minutes=30))
+    now = datetime.now(IST)
+    
+    # make dt timezone aware if it isn't
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=IST)
+    
+    diff = now - dt
+    seconds = diff.total_seconds()
+    minutes = seconds / 60
+    hours = seconds / 3600
+
+    if seconds < 60:
+        return "just now"
+    elif minutes < 60:
+        m = int(minutes)
+        return f"{m} minute{'s' if m > 1 else ''} ago"
+    elif hours < 24:
+        h = int(hours)
+        return f"{h} hour{'s' if h > 1 else ''} ago"
+    elif hours < 48:
+        return f"Yesterday, {dt.strftime('%I:%M %p')}"
+    else:
+        return dt.strftime('%-d %B, %Y %I:%M %p')
+
+app.jinja_env.filters['time_ago'] = time_ago
 
 # -------------------- Regex --------------------
 EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
