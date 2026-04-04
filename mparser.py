@@ -8,7 +8,10 @@ def parse_media(url, media_type):
 
     # 🔴 YouTube
     if media_type == "youtube":
-        match = re.search(r"(?:v=|youtu\.be/)([^&?/]+)", url)
+        match = re.search(
+            r"(?:v=|youtu\.be/|youtube\.com/embed/|youtube\.com/shorts/)([^&?/]+)",
+            url
+        )
         if match:
             video_id = match.group(1)
             return f'''

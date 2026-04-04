@@ -3,7 +3,7 @@
 import markdown
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from flask_socketio import SocketIO, send
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine, func, case
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -716,14 +716,20 @@ def search():
     if not query:
         return render_template('search.html', role=session['role'])
 
-    user_matches = User.query.filter(
-        User.username.ilike(f'%{query}%')
-    ).all()
+    user_matches = User.query.filter(User.username.ilike(f'%{query}%')).order_by(case(
+                (User.username.ilike(f'{query}%'), 0),
+                else_=1
+            ),
+            User.username.asc()
+        ).all()
 
     posts = Post.query.filter(
         Post.status == "approved",
         Post.title.ilike(f'%{query}%')
-    ).order_by(Post.created_at.desc()).all()
+    ).order_by(case(
+                (User.username.ilike(f'{query}%'), 0),
+                else_=1
+            ), Post.created_at.desc()).all()
 
     like_counts = dict(
         db.session.query(
