@@ -63,48 +63,48 @@
                     <h2><u>No posts yet.</u></h2>
                     {% endif %}
                     <ul class="po-cont">
-                        {% for post in user.posts %}
-                        <li style="list-style: none;" class="post">
-                            <span class="status {{ post.status }}">
-                                {{ post.status | capitalize }}
-                            </span><br>
-                            <h2 class="title">{{ post.title }}</h2>
-                            <h3 class="head"><span class="timestamp">{{ post.created_at.strftime('%d-%m-%Y %H:%M:%S') if
-                                    post.created_at else '' }}</span></h3>
-                            <hr>
-                            {% if post.media_html %}
-                            <div class="media-container">
-                                {{ post.media_html | safe }}
-                            </div>
-                            {% endif %}
-                            <p>{{ post.content }}</p>
-                            <hr>
-                            <div class="reactionBox" data-post-id="{{ post.id }}">
-                                <div class="reactions">
-                                    <span class="material-symbols-outlined like 
-                                            {% if post.is_liked %}liked{% endif %}">
-                                        {% if post.is_liked %}
-                                        favorite
-                                        {% else %}
-                                        heart_plus
-                                        {% endif %}
-                                    </span>
-                                    <span class="like-count">
-                                        {% if post.like_count %}
-                                        {% if post.like_count == 1 %}
-                                        {{ post.like_count }} Like
-                                        {% else %}
-                                        {{ post.like_count }} Likes
-                                        {% endif %}
-                                        {% endif %}
-                                    </span>
+                        {% for item in posts %}
+                            <li style="list-style: none;" class="post">
+                                <span class="status {{ item.post.status }}">
+                                    {{ item.post.status | capitalize }}
+                                </span><br>
+                                <h2 class="title">{{ item.ptitle | safe }}</h2>
+                                <h3 class="head"><span class="timestamp">{{ item.post.created_at.strftime('%d-%m-%Y %H:%M:%S') if
+                                        item.post.created_at else '' }}</span></h3>
+                                <hr>
+                                {% if item.post.media_html %}
+                                <div class="media-container">
+                                    {{ item.post.media_html | safe }}
                                 </div>
-                                <!-- <div class="reactions"><span class="material-symbols-outlined liked">favorite</span></div> -->
-                                <!-- <div class="reactions"><span class="material-symbols-outlined comment">comment</span></div> -->
-                                <div class="reactions"><span class="material-symbols-outlined report">report</span>
+                                {% endif %}
+                                <div class="mark">{{ item.pcontent | safe }}</div>
+                                <hr>
+                                <div class="reactionBox" data-post-id="{{ item.post.id }}">
+                                    <div class="reactions">
+                                        <span class="material-symbols-outlined like 
+                                                {% if item.post.is_liked %}liked{% endif %}">
+                                            {% if item.post.is_liked %}
+                                            favorite
+                                            {% else %}
+                                            heart_plus
+                                            {% endif %}
+                                        </span>
+                                        <span class="like-count">
+                                            {% if item.post.like_count %}
+                                            {% if item.post.like_count == 1 %}
+                                            {{ item.post.like_count }} Like
+                                            {% else %}
+                                            {{ item.post.like_count }} Likes
+                                            {% endif %}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <!-- <div class="reactions"><span class="material-symbols-outlined liked">favorite</span></div> -->
+                                    <!-- <div class="reactions"><span class="material-symbols-outlined comment">comment</span></div> -->
+                                    <div class="reactions"><span class="material-symbols-outlined report">report</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>

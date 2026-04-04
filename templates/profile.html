@@ -45,35 +45,35 @@
                     <h2><u>No posts yet.</u></h2>
                     {% endif %}
                     <ul class="po-cont">
-                        {% for post in user.posts %}
+                        {% for item in posts %}
                         <li style="list-style: none;" class="post">
-                            <h2 class="title">{{ post.title }}</h2>
-                            <h3 class="head"><span class="timestamp">{{ post.created_at.strftime('%d-%m-%Y %H:%M:%S') if
-                                    post.created_at else '' }}</span></h3>
+                            <h2 class="title">{{ item.ptitle | safe }}</h2>
+                            <h3 class="head"><span class="timestamp">{{ item.post.created_at.strftime('%d-%m-%Y %H:%M:%S') if
+                                    item.post.created_at else '' }}</span></h3>
                             <hr>
-                            {% if post.media_html %}
+                            {% if item.post.media_html %}
                             <div class="media-container">
-                                {{ post.media_html | safe }}
+                                {{ item.post.media_html | safe }}
                             </div>
                             {% endif %}
-                            <p>{{ post.content }}</p>
+                            <div class="mark">{{ item.pcontent | safe }}</div>
                             <hr>
-                            <div class="reactionBox" data-post-id="{{ post.id }}">
+                            <div class="reactionBox" data-post-id="{{ item.post.id }}">
                                 <div class="reactions">
                                     <span class="material-symbols-outlined like 
-                                            {% if post.is_liked %}liked{% endif %}">
-                                        {% if post.is_liked %}
+                                            {% if item.post.is_liked %}liked{% endif %}">
+                                        {% if item.post.is_liked %}
                                         favorite
                                         {% else %}
                                         heart_plus
                                         {% endif %}
                                     </span>
                                     <span class="like-count">
-                                        {% if post.like_count %}
-                                        {% if post.like_count == 1 %}
-                                        {{ post.like_count }} Like
+                                        {% if item.post.like_count %}
+                                        {% if item.post.like_count == 1 %}
+                                        {{ item.post.like_count }} Like
                                         {% else %}
-                                        {{ post.like_count }} Likes
+                                        {{ item.post.like_count }} Likes
                                         {% endif %}
                                         {% endif %}
                                     </span>

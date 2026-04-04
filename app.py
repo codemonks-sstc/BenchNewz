@@ -622,7 +622,9 @@ def feed():
         posts_data.append({
             'post': post,
             'like_count': like_counts.get(post.id, 0),
-            'is_liked': post.id in liked_posts
+            'is_liked': post.id in liked_posts,
+            'pcontent': markdown.markdown(post.content),
+            'ptitle': markdown.markdown(post.title)
         })
 
     return render_template(
@@ -648,7 +650,7 @@ def post():
     if request.method == 'POST':
         title = request.form['title']
         link = request.form.get('link')
-        content = markdown.markdown(request.form['content'])
+        content = request.form['content']
         media_type = request.form.get('mediaType')
         media_html = parse_media(link, media_type) if link else None
         post = Post(title=title, link=link, content=content, media_html=media_html, mediaType=media_type, author_id=session['user_id'])
@@ -700,7 +702,9 @@ def search():
         posts_data.append({
             'post': post,
             'like_count': like_counts.get(post.id, 0),
-            'is_liked': post.id in liked_posts
+            'is_liked': post.id in liked_posts,
+            'pcontent': markdown.markdown(post.content),
+            'ptitle': markdown.markdown(post.title)
         })
 
     if not posts and not user_matches:
@@ -846,7 +850,9 @@ def profile(username):
         posts_data.append({
             'post': post,
             'like_count': like_counts.get(post.id, 0),
-            'is_liked': post.id in liked_posts
+            'is_liked': post.id in liked_posts,
+            'pcontent': markdown.markdown(post.content),
+            'ptitle': markdown.markdown(post.title)
         })
 
     return render_template(
@@ -888,7 +894,9 @@ def myprofile():
         posts_data.append({
             'post': post,
             'like_count': like_counts.get(post.id, 0),
-            'is_liked': post.id in liked_posts
+            'is_liked': post.id in liked_posts,
+            'pcontent': markdown.markdown(post.content),
+            'ptitle': markdown.markdown(post.title)
         })
 
     return render_template('myprofile.html', user=user, name=user.name, username=user.username, email=user.email, role=user.role, date_joined=user.created_at.strftime('%d-%m-%Y'), posts=posts_data, followers=len(user.followers), following=len(user.following), postUnderReview=Post.query.filter_by(author_id=user.id, status="pending").count(), postRejected=Post.query.filter_by(author_id=user.id, status="rejected").count(), postApproved=Post.query.filter_by(author_id=user.id, status="approved").count())

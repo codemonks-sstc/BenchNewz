@@ -513,14 +513,14 @@ body.dark-mode hr {
     border-top: 0.5px solid #212121;
 }
 
-.post p {
+.post .mark {
     margin-top: 10px;
     padding: 10px;
     font-size: 16px;
     color: #1d1d1d;
 }
 
-body.dark-mode .post p {
+body.dark-mode .post .mark {
     color: #f0f0f0;
 }
 
@@ -556,6 +556,100 @@ body.dark-mode .post p {
 
 .comment:hover {
     color: #f98025;
+}
+
+
+/* ====================== */
+/* ====== markdown ====== */
+/* ====================== */
+
+
+
+.post .mark {
+    /* font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; */
+    font-size: 15px;
+    line-height: 1.8;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem;
+    border-radius: 12px;
+    color: #000;
+}
+
+.post .title p {
+    font-size: 30px;
+    color: #000;
+}
+
+body.dark-mode .title p  {
+    color: #dbdbdb;
+}
+
+.post .mark p {
+    font-size: 15px;
+    margin: 0 0 1.1rem 0;
+    color: #000;
+}
+
+body.dark-mode .post .mark p {
+    color: #dbdbdb;
+}
+
+.post .mark strong {
+    font-size: 15px;
+    color: #e66300;
+    font-weight: 600;
+}
+
+.post .mark ul {
+    font-size: 15px;
+    margin: 0.5rem 0 1.1rem 0;
+    padding-left: 1.5rem;
+    list-style: none;
+}
+
+.post .mark ul li {
+    font-size: 15px;
+    position: relative;
+    padding: 0.3rem 0 0.3rem 1.5rem;
+    /* color: #444; */
+}
+
+.post .mark ul li::before {
+    font-size: 15px;
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: #F98025;
+    font-weight: bold;
+}
+
+.post .mark em {
+    font-size: 15px;
+    /* color: #888; */
+    font-style: italic;
+}
+
+/* Emoji paragraphs get slight left accent */
+.post .mark p:has(> strong:first-child) {
+    font-size: 15px;
+    border-left: 3px solid #F98025;
+    padding-left: 0.75rem;
+    margin-left: -0.75rem;
+    /* background: #fff8f3; */
+    border-radius: 0 6px 6px 0;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+}
+
+/* Signature line */
+.post .mark p:last-child {
+    font-size: 15px;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+    /* color: #999; */
+    /* font-size: 13px; */
 }
 
 

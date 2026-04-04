@@ -44,7 +44,7 @@
             <div class="po-list">
                 {% for item in posts %}
                 <div class="post">
-                    <h2 class="title">{{ item.post.title }}</h2>
+                    <h2 class="title">{{ item.ptitle | safe }}</h2>
                     <h3 class="head"><a class="use" href="/profile/{{ item.post.author.username }}">{{
                             item.post.author.username }}</a><b> - </b><span class="timestamp">{{
                             item.post.created_at.strftime('%d-%m-%Y %H:%M:%S') if item.post.created_at else '' }}</span>
@@ -55,7 +55,7 @@
                         {{ item.post.media_html | safe }}
                     </div>
                     {% endif %}
-                    <p>{{ item.post.content }}</p>
+                    <div class="mark">{{ item.pcontent }}</div>
                     <hr>
                     <div class="reactionBox" data-post-id="{{ item.post.id }}">
                         <div class="reactions">

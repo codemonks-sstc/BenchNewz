@@ -24,7 +24,7 @@
         <div class="feed-content">
             {% for item in posts %}
             <div class="post">
-                <h2 class="title">{{ item.post.title }}</h2>
+                <h2 class="title">{{ item.ptitle | safe }}</h2>
                 <!-- <hr> -->
                 <h3 class="head"><a class="use" href="/profile/{{ item.post.author.username }}">{{
                         item.post.author.username }}</a><b> - </b><span class="timestamp">{{
@@ -36,7 +36,7 @@
                     {{ item.post.media_html | safe }}
                 </div>
                 {% endif %}
-                <p>{{ item.post.content }}</p>
+                <div class="mark">{{ item.pcontent | safe }}</div>
                 <hr>
                 <div class="reactionBox" data-post-id="{{ item.post.id }}">
                     <div class="reactions">

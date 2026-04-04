@@ -29,32 +29,32 @@
             {% endif %}
 
             <ul class="po-cont">
-                {% for post in posts %}
+                {% for item in posts %}
                 <li class="post adm">
 
-                    <span class="status {{ post.status }}">{{ post.status | capitalize }}</span>
+                    <span class="status {{ item.post.status }}">{{ item.post.status | capitalize }}</span>
 
-                    <h2 class="title">{{ post.title }}</h2>
+                    <h2 class="title">{{ item.ptitle | safe }}</h2>
 
-                    <h3 class="head"><a class="use" href="/user/{{ post.author.id }}">{{ post.author.username }}</a><b>
-                            - </b><span class="timestamp">{{ post.created_at.strftime('%d-%m-%Y %H:%M:%S') if
-                            post.created_at else '' }}</span></h3>
+                    <h3 class="head"><a class="use" href="/user/{{ item.post.author.id }}">{{ item.post.author.username }}</a><b>
+                            - </b><span class="timestamp">{{ item.post.created_at.strftime('%d-%m-%Y %H:%M:%S') if
+                            item.post.created_at else '' }}</span></h3>
 
-                    {% if post.media_html %}
+                    {% if item.post.media_html %}
                     <div class="media-container">
-                        {{ post.media_html | safe }}
+                        {{ item.post.media_html | safe }}
                     </div>
                     {% endif %}
 
-                    <p>{{ post.content }}</p>
+                    <div class="mark">{{ item.pcontent | safe }}</div>
 
                     <!-- ACTION BUTTONS -->
                     <div class="admin-actions">
-                        <form action="/adminPanel/approve/{{ post.id }}" method="POST">
+                        <form action="/adminPanel/approve/{{ item.post.id }}" method="POST">
                             <button class="approve-btn">Approve</button>
                         </form>
 
-                        <form action="/adminPanel/reject/{{ post.id }}" method="POST">
+                        <form action="/adminPanel/reject/{{ item.post.id }}" method="POST">
                             <button class="reject-btn">Reject</button>
                         </form>
                     </div>
