@@ -55,7 +55,7 @@ DBNAME = os.getenv("DB_NAME")
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 
-OTPEXPIRYSECONDS =int(os.getenv("OTP_EXPIRY_SECONDS"))
+OTPEXPIRYSECONDS = int(os.getenv("OTP_EXPIRY_SECONDS", 300))
 
 
 # Construct the SQLAlchemy connection string
@@ -67,7 +67,7 @@ db = SQLAlchemy(app)
 socketio = SocketIO(app, async_mode='threading',  cors_allowed_origins="*")
 
 
-print(f"SMTP DEBUG: host={SMTPHOST} port={SMTPPORT} user={SMTPUSER} pass_set={'yes' if SMTPPASS else 'NO'}")
+# print(f"SMTP DEBUG: host={SMTPHOST} port={SMTPPORT} user={SMTPUSER} pass_set={'yes' if SMTPPASS else 'NO'}")
 
 
 
