@@ -1,6 +1,6 @@
 # import eventlet
 # eventlet.monkey_patch(socket=True, select=True, thread=True)
-
+import markdown
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from flask_socketio import SocketIO, send
 from sqlalchemy import create_engine, func
@@ -648,7 +648,7 @@ def post():
     if request.method == 'POST':
         title = request.form['title']
         link = request.form.get('link')
-        content = request.form['content']
+        content = markdown.markdown(request.form['content'])
         media_type = request.form.get('mediaType')
         media_html = parse_media(link, media_type) if link else None
         post = Post(title=title, link=link, content=content, media_html=media_html, mediaType=media_type, author_id=session['user_id'])
