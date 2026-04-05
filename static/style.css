@@ -534,6 +534,8 @@ body.dark-mode .post .mark {
     gap: 50px;
     justify-content: space-between;
     padding-top: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .liked {
@@ -558,6 +560,20 @@ body.dark-mode .post .mark {
     color: #f98025;
 }
 
+.show-more-btn {
+    display: block;
+    margin-top: 6px;
+    color: #F98025;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    user-select: none;
+}
+
+.show-more-btn:hover {
+    text-decoration: underline;
+}
+
 
 /* ====================== */
 /* ====== markdown ====== */
@@ -569,38 +585,141 @@ body.dark-mode .post .mark {
     /* font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; */
     font-size: 15px;
     line-height: 1.8;
-    max-width: 720px;
     margin: 0 auto;
     padding: 2rem;
     border-radius: 12px;
     color: #000;
 }
 
+/* ── Base text ── */
 .post .title p {
     font-size: 30px;
     color: #000;
 }
 
-body.dark-mode .title p  {
+body.dark-mode .title p {
     color: #dbdbdb;
 }
 
-.post .mark p {
+/* ── Paragraphs & headings base ── */
+.post .mark p,
+.post .mark h1,
+.post .mark h2,
+.post .mark h3 {
     font-size: 15px;
     margin: 0 0 1.1rem 0;
     color: #000;
 }
 
-body.dark-mode .post .mark p {
+body.dark-mode .post .mark p,
+body.dark-mode .post .mark h1,
+body.dark-mode .post .mark h2,
+body.dark-mode .post .mark h3 {
     color: #dbdbdb;
 }
 
-.post .mark strong {
-    font-size: 15px;
-    color: #e66300;
-    font-weight: 600;
+/* ── Headings – WhatsApp style (bold, no background) ── */
+
+
+.post .mark h1 {
+    font-weight: normal;
+    width: fit-content;
 }
 
+.post .mark h1::before {
+    content: '#';
+}
+
+
+.post .mark h2,
+.post .mark h3 {
+    font-weight: 700;
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    width: auto;
+    white-space: normal;
+}
+
+
+.post .mark h2 { font-size: 20px; }
+.post .mark h3 { font-size: 17px; }
+
+
+/* ── Bold ── */
+.post .mark strong {
+    font-size: 15px;
+    color: inherit;
+    font-weight: 700;
+}
+
+/* ── Italic ── */
+.post .mark em {
+    font-size: 15px;
+    font-style: italic;
+    color: inherit;
+}
+
+/* ── Strikethrough ── */
+.post .mark del,
+.post .mark s {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* ── Inline code ── */
+.post .mark code {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    padding: 1px 5px;
+}
+
+body.dark-mode .post .mark code {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+}
+
+/* ── Code block ── */
+.post .mark pre {
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    margin: 0 0 1.1rem 0;
+}
+
+.post .mark pre code {
+    background: none;
+    padding: 0;
+    font-size: 13px;
+    color: #333;
+}
+
+body.dark-mode .post .mark pre {
+    background-color: #1e1e1e;
+}
+
+body.dark-mode .post .mark pre code {
+    color: #cfcfcf;
+}
+
+/* ── Blockquote – WhatsApp green left bar ── */
+.post .mark blockquote {
+    border-left: 4px solid #F98025;
+    margin: 0 0 1.1rem 0;
+    padding: 4px 0 4px 12px;
+    color: #555;
+    font-style: italic;
+}
+
+body.dark-mode .post .mark blockquote {
+    color: #aaa;
+    border-left-color: #F98025;
+}
+
+/* ── Unordered list ── */
 .post .mark ul {
     font-size: 15px;
     margin: 0.5rem 0 1.1rem 0;
@@ -609,14 +728,11 @@ body.dark-mode .post .mark p {
 }
 
 .post .mark ul li {
-    font-size: 15px;
     position: relative;
     padding: 0.3rem 0 0.3rem 1.5rem;
-    /* color: #444; */
 }
 
 .post .mark ul li::before {
-    font-size: 15px;
     content: '→';
     position: absolute;
     left: 0;
@@ -624,32 +740,94 @@ body.dark-mode .post .mark p {
     font-weight: bold;
 }
 
-.post .mark em {
+/* ── Ordered list ── */
+.post .mark ol {
     font-size: 15px;
-    /* color: #888; */
-    font-style: italic;
+    margin: 0.5rem 0 1.1rem 0;
+    padding-left: 1.5rem;
+    list-style: none;
+    counter-reset: ol-counter;
 }
 
-/* Emoji paragraphs get slight left accent */
+.post .mark ol li {
+    position: relative;
+    padding: 0.3rem 0 0.3rem 1.5rem;
+    counter-increment: ol-counter;
+}
+
+.post .mark ol li::before {
+    content: counter(ol-counter) '.';
+    position: absolute;
+    left: 0;
+    color: #F98025;
+    font-weight: 700;
+}
+
+/* ── Horizontal rule ── */
+.post .mark hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 1.2rem 0;
+}
+
+body.dark-mode .post .mark hr {
+    border-top-color: #444;
+}
+
+/* ── Links ── */
+.post .mark a {
+    color: #F98025;
+    text-decoration: none;
+}
+
+.post .mark a:hover {
+    text-decoration: underline;
+}
+
+/* ── Tables ── */
+.post .mark table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 0 0 1.1rem 0;
+}
+
+.post .mark th {
+    background-color: #f9812520;
+    color: #F98025;
+    font-weight: 700;
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 2px solid #F98025;
+}
+
+.post .mark td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+body.dark-mode .post .mark td {
+    border-bottom-color: #333;
+}
+
+body.dark-mode .post .mark th {
+    background-color: #f9812515;
+}
+
+/* ── Strong-led paragraph accent ── */
 .post .mark p:has(> strong:first-child) {
-    font-size: 15px;
     border-left: 3px solid #F98025;
     padding-left: 0.75rem;
     margin-left: -0.75rem;
-    /* background: #fff8f3; */
     border-radius: 0 6px 6px 0;
     padding-top: 0.4rem;
     padding-bottom: 0.4rem;
 }
 
-/* Signature line */
+/* ── Signature / last paragraph ── */
 .post .mark p:last-child {
-    font-size: 15px;
     margin-top: 1.5rem;
     padding-top: 1rem;
-    /* border-top: 1px solid #eee; */
-    /* color: #999; */
-    /* font-size: 13px; */
 }
 
 /* ===== guide ========== */
@@ -752,6 +930,7 @@ body.dark-mode #profile #prof-info {
     box-shadow: 0 4px 12px rgba(240, 240, 240, 0.05);
     padding: 10px;
     border-radius: 12px;
+    text-align: left;
 }
 
 body.dark-mode #profile #prof-info .pro {
@@ -822,8 +1001,8 @@ body.dark-mode #profile #prof-info .proi {
 
 .status.pending {
     background: #fcff491e;
-    color: #fbff00;
-    border: 2px solid #fcff49;
+    color: #dcdf00;
+    border: 2px solid #dcdf00;
 }
 
 .status.rejected {
@@ -1266,13 +1445,6 @@ body.dark-mode #foot a:hover {
         min-height: fit-content;
     }
 
-    #profile #prof-info .pro.a {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }   
-
     .post {
         width: 100%;
         min-width: 100%;
@@ -1285,6 +1457,18 @@ body.dark-mode #foot a:hover {
         max-width: 100%;
         min-width: 100%;
     }
+
+    #profile #prof-info .pro.a {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }   
+
+    .post .mark {
+        padding: 0.5rem;
+    }
+
 }
 
 @media (max-width: 500px) {
@@ -1328,7 +1512,7 @@ body.dark-mode #foot a:hover {
     .fbar {
         position: fixed;
         width: 100%;
-        height: 50px;
+        height: 60px;
         bottom: 0;
         left: 0;
         background-color: #eaeaea;
@@ -1336,6 +1520,7 @@ body.dark-mode #foot a:hover {
         flex-direction: row;
         justify-content: space-between;
         padding: 0px 20px;
+        padding-bottom: 10px;
     }
 
     body.dark-mode .fbar {
@@ -1373,6 +1558,7 @@ body.dark-mode #foot a:hover {
     #profile #prof-posts {
         padding-bottom: 70px;
     }
+
 
 }
 

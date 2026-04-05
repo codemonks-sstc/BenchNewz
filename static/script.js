@@ -101,3 +101,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
+
+function alt() {
+        alert('Only reporters can make posts. To post, please change your role from the profile section.');
+}
+
+function toggleContent(btn) {
+    const mark = btn.closest('.mark');
+    const expanded = mark.dataset.expanded === 'true';
+
+    mark.innerHTML = (expanded ? mark.dataset.short : mark.dataset.full);
+
+    const newBtn = document.createElement('span');
+    newBtn.className = 'show-more-btn';
+    newBtn.textContent = expanded ? 'Show more' : 'Show less';
+    newBtn.onclick = () => toggleContent(newBtn);
+    mark.appendChild(newBtn);
+
+    mark.dataset.expanded = String(!expanded);
+}
+
+// collapse on outside click
+document.addEventListener('click', function (e) {
+    document.querySelectorAll('.mark[data-expanded="true"]').forEach(mark => {
+        if (!mark.contains(e.target)) {
+            mark.innerHTML = mark.dataset.short;
+            const btn = document.createElement('span');
+            btn.className = 'show-more-btn';
+            btn.textContent = 'Show more';
+            btn.onclick = () => toggleContent(btn);
+            mark.appendChild(btn);
+            mark.dataset.expanded = 'false';
+        }
+    });
+});

@@ -25,10 +25,10 @@
             {% for item in posts %}
             <div class="post">
                 <h2 class="title">{{ item.ptitle | safe }}</h2>
-                <!-- <hr> -->
-                <h3 class="head"><a class="use" href="/profile/{{ item.post.author.username }}">{{
-                        item.post.author.username }}</a><b> - </b><span class="timestamp">{{
-                        item.post.created_at | time_ago  if item.post.created_at else '' }}</span>
+                <h3 class="head">
+                    <a class="use" href="/profile/{{ item.post.author.username }}">{{ item.post.author.username }}</a>
+                    <b> - </b>
+                    <span class="timestamp">{{ item.post.created_at | time_ago if item.post.created_at else '' }}</span>
                 </h3>
                 <hr>
                 {% if item.post.media_html %}
@@ -36,29 +36,29 @@
                     {{ item.post.media_html | safe }}
                 </div>
                 {% endif %}
-                <div class="mark">{{ item.pcontent | safe }}</div>
+
+                <div class="mark"
+                    data-full="{{ item.pcontent | e }}"
+                    data-short="{{ item.pcontent_short | e }}"
+                    data-expanded="false">
+                    {{ item.pcontent_short | safe }}
+                    {% if item.is_long %}
+                    <span class="show-more-btn" onclick="toggleContent(this)">Show more</span>
+                    {% endif %}
+                </div>
+
                 <hr>
                 <div class="reactionBox" data-post-id="{{ item.post.id }}">
                     <div class="reactions">
-                        <span class="material-symbols-outlined like 
-                            {% if item.is_liked %}liked{% endif %}">
-                            {% if item.is_liked %}
-                            favorite
-                            {% else %}
-                            heart_plus
-                            {% endif %}
+                        <span class="material-symbols-outlined like {% if item.is_liked %}liked{% endif %}">
+                            {% if item.is_liked %}favorite{% else %}heart_plus{% endif %}
                         </span>
                         <span class="like-count">
-                            {% if item.like_count == 1 %}
-                            {{ item.like_count }} Like
-                            {% elif item.like_count == 0 %}
-                            {% else %}
-                            {{ item.like_count }} Likes
+                            {% if item.like_count == 1 %}{{ item.like_count }} Like
+                            {% elif item.like_count > 1 %}{{ item.like_count }} Likes
                             {% endif %}
                         </span>
                     </div>
-                    <!-- <div class="reactions"><span class="material-symbols-outlined liked">favorite</span></div> -->
-                    <!-- <div class="reactions"><span class="material-symbols-outlined comment">comment</span></div> -->
                     <div class="reactions"><span class="material-symbols-outlined report">report</span></div>
                 </div>
             </div>
@@ -684,7 +684,7 @@
                 {% if role == "reporter" or role == "admin" %}
                 <a href="/post" class="material-symbols-outlined" alt="Create Post">add_2</a>
                 {% else %}
-                <a href="/post" class="material-symbols-outlined" alt="Create Post">add</a>
+                <a onclick="alt()" class="material-symbols-outlined nadd" alt="Create Post">add</a>
                 {% endif %}
                 <a href="/myprofile" class="material-symbols-outlined" alt="Profile">account_circle</a>
             </span>

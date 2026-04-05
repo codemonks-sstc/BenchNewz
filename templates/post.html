@@ -37,19 +37,50 @@
                 </div>
                 <textarea id="content" name="content" minlength="20" placeholder="What's on your mind?"
                     required></textarea>
-                <button type="submit">Post</button>
+                <button id="s" type="submit">Post</button>
             </form>
             <div class="post-guide">
-                <p><strong><u>Writing Tips</u></strong></p>
+                <p><strong><u>Writing Guide</u></strong></p>
 
                 <ul>
+                    <!-- Text formatting -->
                     <li><code>*text*</code> → <em>italic</em></li>
                     <li><code>**text**</code> → <strong>bold</strong></li>
                     <li><code>***text***</code> → <strong><em>bold italic</em></strong></li>
-                    <li><code>- item</code> → bullet list</li>
-                    <li><code>→ item</code> → arrow list</li>
-                    <li><code>**Heading:**</code> → section title</li>
-                    <li><code>😊 emoji</code> → adds visual highlight</li>
+                    <li><code>~~text~~</code> → <del>strikethrough</del></li>
+
+                    <!-- Headings -->
+                    <li><code># Word</code> → <span style="font-weight:normal; font-size:13px;">#Tag</span></li>
+                    <li><code>## text</code> → <strong style="font-size:20px;">Section heading</strong></li>
+                    <li><code>### text</code> → <strong style="font-size:17px;">Sub heading</strong></li>
+
+                    <!-- Lists -->
+                    <li><code>- item</code> → <span style="color:#F98025;">→</span> bullet list</li>
+                    <li><code>1. item</code> → <span style="color:#F98025;">1.</span> numbered list</li>
+
+                    <!-- Blockquote -->
+                    <li><code>&gt; text</code> → <span style="border-left:3px solid #F98025; padding-left:6px; font-style:italic; color:#555;">quote block</span></li>
+
+                    <!-- Code -->
+                    <li><code>`code`</code> → <code>inline code</code></li>
+                    <li><code>```code```</code> → code block</li>
+
+                    <!-- Link -->
+                    <li><code>[label](url)</code> → <a style="color:#F98025; text-decoration:none;">link</a></li>
+
+                    <!-- Table -->
+                    <li>
+                        <code>| A | B |</code> → 
+                        <span style="font-size:12px;">
+                            <span style="color:#F98025; font-weight:700;">table</span>
+                        </span>
+                    </li>
+
+                    <!-- Divider -->
+                    <li><code>---</code> → <span style="display:inline-block; width:60px; border-top:1px solid #e0e0e0; vertical-align:middle;"></span> divider</li>
+
+                    <!-- Bold-led paragraph -->
+                    <li><code>**Title:** text</code> → <span style="border-left:3px solid #F98025; padding-left:6px; font-size:13px;"><strong>accented</strong> paragraph</span></li>
                 </ul>
 
                 <p><em>Tip: Keep it clean and readable</em></p>
@@ -63,11 +94,13 @@
                         mediaInput.disabled = false;
                     } else {
                         mediaInput.disabled = true;
-                        mediaInput.value = ""; // optional: clear input
+                        mediaInput.value = "";
                     }
                 }
 
                 mediaType.addEventListener("change", toggleMediaInput);
+
+                document.getElementById('s').addEventListener("click", toggleMediaInput)
 
                 // run once on page load
                 toggleMediaInput();
@@ -701,7 +734,7 @@
                 {% if role == "reporter" or role == "admin" %}
                 <a href="/post" class="material-symbols-outlined active" alt="Create Post">add_2</a>
                 {% else %}
-                <a href="/post" class="material-symbols-outlined" alt="Create Post">add</a>
+                <a href="/post" class="material-symbols-outlined nadd" alt="Create Post">add</a>
                 {% endif %}
                 <a href="/myprofile" class="material-symbols-outlined" alt="Profile">account_circle</a>
             </span>

@@ -38,25 +38,28 @@
                         <div class="proi"><span class="material-symbols-outlined">person_add</span>{{ following }}
                             Following</div>
                     </div> -->
-                    <div class="pro tp"><span class="material-symbols-outlined">article</span>{{ posts|length }} Posts
+                    {% if role != 'user' %}
+                        <div class="pro tp"><span class="material-symbols-outlined">article</span>{{ posts|length }} Posts
+                        </div>
+                        <div class="pro a">
+                            <!-- posts under review -->
+                            <div class="proi"><span class="material-symbols-outlined p">hourglass_top</span><span>Posts
+                                    Under Review<br>{{ postUnderReview }}</span></div>
+                            <!-- approved posts -->
+                            <div class="proi"><span class="material-symbols-outlined p">check_circle</span><span>Approved
+                                    Posts<br>{{ postApproved }}</span></div>
+                            <!-- rejected posts -->
+                            <div class="proi"><span class="material-symbols-outlined p">close</span><span>Rejected
+                                    Posts<br>{{ postRejected }}</span></div>
                     </div>
-                    <div class="pro a">
-                        <!-- posts under review -->
-                        <div class="proi"><span class="material-symbols-outlined p">hourglass_top</span><span>Posts
-                                Under Review<br>{{ postUnderReview }}</span></div>
-                        <!-- approved posts -->
-                        <div class="proi"><span class="material-symbols-outlined p">check_circle</span><span>Approved
-                                Posts<br>{{ postApproved }}</span></div>
-                        <!-- rejected posts -->
-                        <div class="proi"><span class="material-symbols-outlined p">close</span><span>Rejected
-                                Posts<br>{{ postRejected }}</span></div>
-                    </div>
+                    {% endif %}
                     <div class="admin-actions">
                         <a href="/deleteAcc" class="reject-btn">Delete Account</a>
                         <a href="/cr" class="approve-btn">Change Role</a>
                     </div>
                 </div>
                 <div id="prof-posts">
+                    {% if role != 'user' %}
                     {% if user.posts|length > 0 %}
                     <h1 id="prof">Posts</h1>
                     {% else %}
@@ -77,7 +80,15 @@
                                     {{ item.post.media_html | safe }}
                                 </div>
                                 {% endif %}
-                                <div class="mark">{{ item.pcontent | safe }}</div>
+                                <div class="mark"
+                                    data-full="{{ item.pcontent | e }}"
+                                    data-short="{{ item.pcontent_short | e }}"
+                                    data-expanded="false">
+                                    {{ item.pcontent_short | safe }}
+                                    {% if item.is_long %}
+                                    <span class="show-more-btn" onclick="toggleContent(this)">Show more</span>
+                                    {% endif %}
+                                </div>
                                 <hr>
                                 <div class="reactionBox" data-post-id="{{ item.post.id }}">
                                     <div class="reactions">
@@ -107,6 +118,9 @@
                             </li>
                         {% endfor %}
                     </ul>
+                    {% else %}
+                    <h2>Change role to Reporter in order to make posts.</h2>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -730,7 +744,7 @@
                 {% if role == "reporter" or role == "admin" %}
                 <a href="/post" class="material-symbols-outlined" alt="Create Post">add_2</a>
                 {% else %}
-                <a href="/post" class="material-symbols-outlined" alt="Create Post">add</a>
+                <a onclick="alt()" class="material-symbols-outlined nadd" alt="Create Post">add</a>
                 {% endif %}
                 <a href="/myprofile" class="material-symbols-outlined active" alt="Profile">account_circle</a>
             </span>

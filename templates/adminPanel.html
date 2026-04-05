@@ -46,7 +46,15 @@
                     </div>
                     {% endif %}
 
-                    <div class="mark">{{ item.pcontent | safe }}</div>
+                    <div class="mark"
+                        data-full="{{ item.pcontent | e }}"
+                        data-short="{{ item.pcontent_short | e }}"
+                        data-expanded="false">
+                        {{ item.pcontent_short | safe }}
+                        {% if item.is_long %}
+                        <span class="show-more-btn" onclick="toggleContent(this)">Show more</span>
+                        {% endif %}
+                    </div>
 
                     <!-- ACTION BUTTONS -->
                     <div class="admin-actions">

@@ -1,19 +1,16 @@
-# import eventlet
-# eventlet.monkey_patch(socket=True, select=True, thread=True)
-import markdown
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
-from flask_socketio import SocketIO, send
-from sqlalchemy import create_engine, func, case
+from flask_socketio import SocketIO
+from sqlalchemy import func, case, and_
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from datetime import datetime
-from disposable_email_domains import blocklist
 import re
-import random, smtplib,time
+import random, time
 from mparser import parse_media
 import requests
+import markdown
 from datetime import timezone, timedelta
 
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -68,11 +65,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER')
 db = SQLAlchemy(app)
 socketio = SocketIO(app, async_mode='threading',  cors_allowed_origins="*")
-
-
-# print(f"SMTP DEBUG: host={SMTPHOST} port={SMTPPORT} user={SMTPUSER} pass_set={'yes' if SMTPPASS else 'NO'}")
-
-
 
 # -------------------- Models --------------------
 class User(db.Model):
@@ -180,7 +172,6 @@ class Follow(db.Model):
     __table_args__ = (
         db.UniqueConstraint('follower_id', 'following_id', name='unique_follow'),
     )
-
 
 #---------------send OTP------------------------------------------------------
 def send_otp_email(recipient_email, otp, name=None):
@@ -303,6 +294,23 @@ def time_ago(dt):
         return dt.astimezone(IST).strftime('%-d %B, %Y %I:%M %p')
 
 app.jinja_env.filters['time_ago'] = time_ago
+
+# short posts ------------------------------------------------
+
+def sanitize_headings(text):
+    return re.sub(r'^(#{1,3})\s+(\S+)[^\S\r\n]*.*$', r'\1 \2', text, flags=re.MULTILINE)
+
+MAX_CONTENT_LENGTH = 500
+
+def process_post_content(content):
+    clean = sanitize_headings(content)
+    is_long = len(content) > MAX_CONTENT_LENGTH
+    short = content[:MAX_CONTENT_LENGTH] + '...' if is_long else content
+    return {
+        'full': markdown.markdown(clean),
+        'short': markdown.markdown(sanitize_headings(short)),
+        'is_long': is_long
+    }
 
 # -------------------- Regex --------------------
 EMAIL_REGEX = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
@@ -492,8 +500,7 @@ def fp():
 
         try:
             send_otp_email(email, otp, name=user.name)
-        except Exception as e:
-            print(f"OTP ERROR: {e}")
+        except Exception:
             return render_template('fp.html', verify=0, error="Failed to send OTP")
 
         return render_template('fp.html', verify=1)
@@ -529,7 +536,7 @@ def fp():
 
         return redirect(url_for('index'))
 
-    return redirect(url_for('fp'))
+    return redirect(url_for('index'))
 
 
 @app.route('/cr', methods=['GET', 'POST'])
@@ -555,8 +562,7 @@ def cr():
 
         try:
             send_otp_email(email, otp, name=user.name)
-        except Exception as e:
-            print(f"OTP ERROR: {e}")
+        except Exception:
             return render_template('cr.html', verify=0, error="Failed to send OTP")
 
         return render_template('cr.html', verify=1)
@@ -586,7 +592,7 @@ def cr():
         db.session.commit()
         session.clear()
 
-        return redirect(url_for('myprofile'))
+        return redirect(url_for('cr'))
 
     return redirect(url_for('cr'))
 
@@ -666,19 +672,23 @@ def feed():
 
     posts_data = []
     for post in posts:
+        processed = process_post_content(post.content)
         posts_data.append({
             'post': post,
             'like_count': like_counts.get(post.id, 0),
             'is_liked': post.id in liked_posts,
-            'pcontent': markdown.markdown(post.content),
-            'ptitle': markdown.markdown(post.title)
+            'pcontent': processed['full'],
+            'pcontent_short': processed['short'],
+            'is_long': processed['is_long'],
+            'ptitle': markdown.markdown(sanitize_headings(post.title))
         })
 
+    role = User.query.get(session['user_id']).role
     return render_template(
         'feed.html',
         posts=posts_data,
         username=session['username'],
-        role=session['role']
+        role = role
     )
 
 @app.route('/post', methods=['GET', 'POST'])
@@ -717,19 +727,24 @@ def search():
         return render_template('search.html', role=session['role'])
 
     user_matches = User.query.filter(User.username.ilike(f'%{query}%')).order_by(case(
-                (User.username.ilike(f'{query}%'), 0),
-                else_=1
-            ),
-            User.username.asc()
-        ).all()
+                    (User.username.ilike(f'{query}%'), 0),
+                    else_=1
+                ),
+                User.username.asc()
+            ).limit(10).all()
 
     posts = Post.query.filter(
         Post.status == "approved",
-        Post.title.ilike(f'%{query}%')
+        and_(
+            Post.title.ilike(f'%{query}%'),
+            Post.content.ilike(f'%{query}%')
+        )
     ).order_by(case(
-                (User.username.ilike(f'{query}%'), 0),
-                else_=1
-            ), Post.created_at.desc()).all()
+                (Post.title.ilike(f'{query}%'), 0),   # title starts with query  → highest
+                (Post.title.ilike(f'%{query}%'), 1),   # query in title           → second
+                (Post.content.ilike(f'%{query}%'), 2), # query only in content    → third
+                else_=3
+            ), Post.created_at.desc()).limit(10).all()
 
     like_counts = dict(
         db.session.query(
@@ -752,12 +767,15 @@ def search():
 
     posts_data = []
     for post in posts:
+        processed = process_post_content(post.content)
         posts_data.append({
             'post': post,
             'like_count': like_counts.get(post.id, 0),
             'is_liked': post.id in liked_posts,
-            'pcontent': markdown.markdown(post.content),
-            'ptitle': markdown.markdown(post.title)
+            'pcontent': processed['full'],
+            'pcontent_short': processed['short'],
+            'is_long': processed['is_long'],
+            'ptitle': markdown.markdown(sanitize_headings(post.title))
         })
 
     if not posts and not user_matches:
@@ -778,6 +796,7 @@ def search():
         query=query,
         user_matches=user_matches
     )
+
 
 @app.route('/post/<int:post_id>/react', methods=['POST'])
 def react_post(post_id):
@@ -900,12 +919,15 @@ def profile(username):
 
     posts_data = []
     for post in posts:
+        processed = process_post_content(post.content)
         posts_data.append({
             'post': post,
             'like_count': like_counts.get(post.id, 0),
             'is_liked': post.id in liked_posts,
-            'pcontent': markdown.markdown(post.content),
-            'ptitle': markdown.markdown(post.title)
+            'pcontent': processed['full'],
+            'pcontent_short': processed['short'],
+            'is_long': processed['is_long'],
+            'ptitle': markdown.markdown(sanitize_headings(post.title))
         })
 
     return render_template(
@@ -944,15 +966,18 @@ def myprofile():
 
     posts_data = []
     for post in posts:
+        processed = process_post_content(post.content)
         posts_data.append({
             'post': post,
             'like_count': like_counts.get(post.id, 0),
             'is_liked': post.id in liked_posts,
-            'pcontent': markdown.markdown(post.content),
-            'ptitle': markdown.markdown(post.title)
+            'pcontent': processed['full'],
+            'pcontent_short': processed['short'],
+            'is_long': processed['is_long'],
+            'ptitle': markdown.markdown(sanitize_headings(post.title))
         })
 
-    return render_template('myprofile.html', user=user, name=user.name, username=user.username, email=user.email, role=user.role, date_joined=user.created_at.strftime('%d-%m-%Y'), posts=posts_data, followers=len(user.followers), following=len(user.following), postUnderReview=Post.query.filter_by(author_id=user.id, status="pending").count(), postRejected=Post.query.filter_by(author_id=user.id, status="rejected").count(), postApproved=Post.query.filter_by(author_id=user.id, status="approved").count())
+    return render_template('myprofile.html', user=user, name=user.name, username=user.username, email=user.email, role=user.role, date_joined=user.created_at.strftime('%d %b, %Y'), posts=posts_data, followers=len(user.followers), following=len(user.following), postUnderReview=Post.query.filter_by(author_id=user.id, status="pending").count(), postRejected=Post.query.filter_by(author_id=user.id, status="rejected").count(), postApproved=Post.query.filter_by(author_id=user.id, status="approved").count())
 
 @app.route('/follow/<int:user_id>', methods=['POST'])
 def follow_user(user_id):
@@ -977,12 +1002,36 @@ def adminPanel():
 
     posts = Post.query.filter(Post.status.in_(["pending", "reported"])).order_by(Post.created_at.desc()).all()
 
+    like_counts = dict(
+        db.session.query(
+            PostReaction.post_id,
+            func.count().label('count')
+        )
+        .filter(PostReaction.reaction_type == 'like')
+        .group_by(PostReaction.post_id)
+        .all()
+    )
+
+    user = User.query.get(session['user_id'])
+
+    liked_posts = set(
+        r.post_id for r in PostReaction.query.filter_by(
+            user_id=user.id,
+            reaction_type='like'
+        ).all()
+    )
+
     posts_data = []
     for post in posts:
+        processed = process_post_content(post.content)
         posts_data.append({
             'post': post,
-            'pcontent': markdown.markdown(post.content),
-            'ptitle': markdown.markdown(post.title)
+            'like_count': like_counts.get(post.id, 0),
+            'is_liked': post.id in liked_posts,
+            'pcontent': processed['full'],
+            'pcontent_short': processed['short'],
+            'is_long': processed['is_long'],
+            'ptitle': markdown.markdown(sanitize_headings(post.title))
         })
 
     return render_template('adminPanel.html', posts=posts_data, username=session['username'], role=session['role'])
@@ -1021,5 +1070,4 @@ with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    # socketio.run(app, host='0.0.0.0', port=5000, debug=True)
-    ...
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)

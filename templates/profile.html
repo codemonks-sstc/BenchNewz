@@ -35,8 +35,10 @@
                         <div class="proi"><span class="material-symbols-outlined">people</span>{{ followers }} Followers</div>
                         <div class="proi"><span class="material-symbols-outlined">person_add</span>{{ following }} Following</div>
                     </div> -->
+                    {% if user.role != user %}
                     <div class="pro tp"><span class="material-symbols-outlined">article</span>{{ posts|length }} Posts
                     </div>
+                    {% endif %}
                 </div>
                 <div id="prof-posts">
                     {% if user.posts|length > 0 %}
@@ -56,7 +58,15 @@
                                 {{ item.post.media_html | safe }}
                             </div>
                             {% endif %}
-                            <div class="mark">{{ item.pcontent | safe }}</div>
+                            <div class="mark"
+                                data-full="{{ item.pcontent | e }}"
+                                data-short="{{ item.pcontent_short | e }}"
+                                data-expanded="false">
+                                {{ item.pcontent_short | safe }}
+                                {% if item.is_long %}
+                                <span class="show-more-btn" onclick="toggleContent(this)">Show more</span>
+                                {% endif %}
+                            </div>
                             <hr>
                             <div class="reactionBox" data-post-id="{{ item.post.id }}">
                                 <div class="reactions">
@@ -709,7 +719,7 @@
                 {% if role == "reporter" or role == "admin" %}
                 <a href="/post" class="material-symbols-outlined" alt="Create Post">add_2</a>
                 {% else %}
-                <a href="/post" class="material-symbols-outlined" alt="Create Post">add</a>
+                <a onclick="alt()" class="material-symbols-outlined nadd" alt="Create Post">add</a>
                 {% endif %}
                 <a href="/myprofile" class="material-symbols-outlined" alt="Profile">account_circle</a>
             </span>
