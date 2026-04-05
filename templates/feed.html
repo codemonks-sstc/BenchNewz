@@ -37,11 +37,10 @@
                 </div>
                 {% endif %}
 
-                <div class="mark"
-                    data-full="{{ item.pcontent | e }}"
-                    data-short="{{ item.pcontent_short | e }}"
-                    data-expanded="false">
-                    {{ item.pcontent_short | safe }}
+                <div class="mark">
+                    <div class="short">{{ item.pcontent_short | safe }}</div>
+                    <div class="full" style="display:none;">{{ item.pcontent | safe }}</div>
+
                     {% if item.is_long %}
                     <span class="show-more-btn" onclick="toggleContent(this)">Show more</span>
                     {% endif %}

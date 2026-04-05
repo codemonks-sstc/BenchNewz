@@ -623,7 +623,6 @@ body.dark-mode .post .mark h3 {
 
 .post .mark h1 {
     font-weight: normal;
-    width: fit-content;
 }
 
 .post .mark h1::before {
@@ -637,8 +636,6 @@ body.dark-mode .post .mark h3 {
     background: none;
     border-radius: 0;
     padding: 0;
-    width: auto;
-    white-space: normal;
 }
 
 

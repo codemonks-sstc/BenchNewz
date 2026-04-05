@@ -298,7 +298,7 @@ app.jinja_env.filters['time_ago'] = time_ago
 # short posts ------------------------------------------------
 
 def sanitize_headings(text):
-    return re.sub(r'^(#{1,3})\s+(\S+)[^\S\r\n]*.*$', r'\1 \2', text, flags=re.MULTILINE)
+    return re.sub(r'^(#{1,3})\s+(.+?)\s*$', r'\1 \2', text, flags=re.MULTILINE)
 
 MAX_CONTENT_LENGTH = 500
 

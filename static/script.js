@@ -109,30 +109,18 @@ function alt() {
 
 function toggleContent(btn) {
     const mark = btn.closest('.mark');
-    const expanded = mark.dataset.expanded === 'true';
+    const short = mark.querySelector('.short');
+    const full = mark.querySelector('.full');
 
-    mark.innerHTML = (expanded ? mark.dataset.short : mark.dataset.full);
+    const isHidden = full.style.display === "none";
 
-    const newBtn = document.createElement('span');
-    newBtn.className = 'show-more-btn';
-    newBtn.textContent = expanded ? 'Show more' : 'Show less';
-    newBtn.onclick = () => toggleContent(newBtn);
-    mark.appendChild(newBtn);
-
-    mark.dataset.expanded = String(!expanded);
+    if (isHidden) {
+        short.style.display = "none";
+        full.style.display = "block";
+        btn.textContent = "Show less";
+    } else {
+        short.style.display = "block";
+        full.style.display = "none";
+        btn.textContent = "Show more";
+    }
 }
-
-// collapse on outside click
-document.addEventListener('click', function (e) {
-    document.querySelectorAll('.mark[data-expanded="true"]').forEach(mark => {
-        if (!mark.contains(e.target)) {
-            mark.innerHTML = mark.dataset.short;
-            const btn = document.createElement('span');
-            btn.className = 'show-more-btn';
-            btn.textContent = 'Show more';
-            btn.onclick = () => toggleContent(btn);
-            mark.appendChild(btn);
-            mark.dataset.expanded = 'false';
-        }
-    });
-});
